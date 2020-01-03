@@ -575,7 +575,7 @@ class mailEclipse
 
             $params = $reflection->getConstructor()->getParameters();
 
-            DB::beginTransaction();
+            // DB::beginTransaction();
 
             $eloquentFactory = app(EloquentFactory::class);
 
@@ -631,7 +631,7 @@ class mailEclipse
                 return $foo;
             }
 
-            DB::rollBack();
+            // DB::rollBack();
         }
     }
 

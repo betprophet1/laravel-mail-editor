@@ -5,6 +5,7 @@ namespace qoraiche\mailEclipse\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\App;
+use qoraiche\mailEclipse\Models\Mailable;
 use qoraiche\mailEclipse\mailEclipse;
 
 class MailablesController extends Controller
@@ -26,7 +27,21 @@ class MailablesController extends Controller
     {
         $mailables = mailEclipse::getMailables();
 
-        $mailables = (null !== $mailables) ? $mailables->sortBy('name') : collect([]);
+        $mailables = ((null !== $mailables) ? $mailables->sortBy('name') : collect([]))
+            ->map(function ($mailable) {
+                $model = Mailable::where('name', $mailable['name'])->first();
+
+                if (!$model) {
+                    $model = Mailable::create([
+                        'name'    => $mailable['name'],
+                        'enabled' => true,
+                    ]);
+                }
+
+                return array_merge($mailable, [
+                    'enabled' => $model->enabled,
+                ]);
+            });
 
         return view(mailEclipse::$view_namespace.'::sections.mailables', compact('mailables'));
     }
@@ -52,6 +67,26 @@ class MailablesController extends Controller
         $resource = $mailable->first();
 
         return view(mailEclipse::$view_namespace.'::sections.view-mailable')->with(compact('resource'));
+    }
+
+    public function toggleMailable($name)
+    {
+        $mailable = mailEclipse::getMailable('name', $name);
+
+        if ($mailable->isNotEmpty()) {
+            $resource = $mailable->first();
+
+            $model = Mailable::where('name', $resource['name'])->first();
+
+            // Toggle mailable
+            if ($model) {
+                $model->update([
+                    'enabled' => !$model->enabled,
+                ]);
+            }
+        }
+
+        return redirect()->route('mailableList');
     }
 
     public function editMailable($name)

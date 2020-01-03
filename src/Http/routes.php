@@ -16,6 +16,7 @@ Route::group(['prefix' => 'templates'], function () {
 Route::group(['prefix' => 'mailables'], function () {
     Route::get('/', 'MailablesController@index')->name('mailableList');
     Route::get('view/{name}', 'MailablesController@viewMailable')->name('viewMailable');
+    Route::get('toggle/{name}', 'MailablesController@toggleMailable')->name('toggleMailable');
     Route::get('edit/template/{name}', 'MailablesController@editMailable')->name('editMailable');
     Route::post('parse/template', 'MailablesController@parseTemplate')->name('parseTemplate');
     Route::post('preview/template', 'MailablesController@previewMarkdownView')->name('previewMarkdownView');
